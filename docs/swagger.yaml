@@ -1,0 +1,541 @@
+basePath: /
+definitions:
+  entity.Bicycle:
+    properties:
+      bicycle_id:
+        type: integer
+      bicycle_model:
+        type: string
+      bicycle_stock:
+        type: integer
+      bicycle_type:
+        type: string
+      created_at:
+        type: string
+      price_per_day_holiday:
+        type: number
+      price_per_day_normal:
+        type: number
+      updated_at:
+        type: string
+    type: object
+  entity.Booking:
+    properties:
+      bicycle_id:
+        type: integer
+      booking_date:
+        type: string
+      booking_id:
+        type: integer
+      booking_status:
+        type: string
+      created_at:
+        type: string
+      discount_amount:
+        type: number
+      duration:
+        type: integer
+      rental_type:
+        type: string
+      subtotal_amount:
+        type: number
+      time_arrive:
+        type: string
+      time_depart:
+        type: string
+      total_amount:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      voucher_id:
+        type: integer
+    type: object
+  handler.loginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  handler.registerRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      user_name:
+        type: string
+    type: object
+  handler.topupRequest:
+    properties:
+      amount:
+        type: number
+    type: object
+  repository.BookingReport:
+    properties:
+      cancelled_bookings:
+        type: integer
+      completed_bookings:
+        type: integer
+      total_bookings:
+        type: integer
+      total_revenue:
+        type: number
+    type: object
+  service.WeatherInfo:
+    properties:
+      city:
+        type: string
+      description:
+        type: string
+      temperature:
+        type: number
+    type: object
+  usecase.BookingResult:
+    properties:
+      booking:
+        $ref: '#/definitions/entity.Booking'
+      converted_usd:
+        type: number
+      weather:
+        $ref: '#/definitions/service.WeatherInfo'
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API for Bicycle Rental System
+  title: Bicycle Rent API
+  version: "1.0"
+paths:
+  /api/bicycles:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all bicycles
+      tags:
+      - Bicycles
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bicycle
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Bicycle'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Bicycle'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create bicycle
+      tags:
+      - Bicycles
+  /api/bicycles/{id}:
+    delete:
+      parameters:
+      - description: Bicycle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete bicycle
+      tags:
+      - Bicycles
+    get:
+      parameters:
+      - description: Bicycle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Bicycle'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get bicycle by ID
+      tags:
+      - Bicycles
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bicycle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bicycle
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Bicycle'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Bicycle'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update bicycle
+      tags:
+      - Bicycles
+  /api/bookings:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get my bookings
+      tags:
+      - Bookings
+    post:
+      consumes:
+      - application/json
+      description: Create a bicycle rental booking
+      parameters:
+      - description: Booking request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Booking'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/usecase.BookingResult'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Create booking
+      tags:
+      - Bookings
+  /api/bookings/{id}:
+    get:
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Booking'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get booking by ID
+      tags:
+      - Bookings
+  /api/bookings/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Booking status
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Update booking status
+      tags:
+      - Bookings
+  /api/bookings/report:
+    get:
+      description: Get booking report (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repository.BookingReport'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get booking report
+      tags:
+      - Bookings
+  /api/topups:
+    get:
+      description: Get top up history of the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get top up history
+      tags:
+      - Topups
+    post:
+      consumes:
+      - application/json
+      description: Add dummy balance to the authenticated user's account
+      parameters:
+      - description: Top up request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.topupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Top up balance
+      tags:
+      - Topups
+  /api/users/login:
+    post:
+      consumes:
+      - application/json
+      description: Login using email and password
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login user
+      tags:
+      - Users
+  /api/users/me:
+    get:
+      description: Get current authenticated user's profile and balance
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get current user
+      tags:
+      - Users
+  /api/users/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new customer account
+      parameters:
+      - description: Register request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.registerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register user
+      tags:
+      - Users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
